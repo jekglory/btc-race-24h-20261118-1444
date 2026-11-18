@@ -1,0 +1,18 @@
+Hourly make.fun bounty watch (Adam's standing order 2026-11-15). Run every hour. This run does DETECTION + DISPATCH only — long builds run in spawned subagents and report back to the main chat.
+
+1. Fetch the live competitions list: GET https://make.fun/api/competitions with header `x-api-key` read ONLY via command substitution from ~/workspace/makefun/register-result.json field `key`. NEVER print the key or write it to any file. If the API is down/maintenance, retry once after a few minutes; if still down, update last_checked in the seen-state and end silently.
+2. Compare against ~/workspace/makefun/seen-competitions.json. NEW = a slug not in the file, status open, deadline in the future. Ignore anything marked handled, anything already submitted, and anything resolved/closed. NEVER re-trigger threejs-fps-01 (handled by cron threejs-fps-01-reauthor, runs 2026-11-17 00:05 WIB) or tiny-chess-01 (closed unless Adam orders a new build).
+3. For each NEW competition, fetch its requirements (GET https://make.fun/api/competitions/<slug>/requirements) and assess:
+   - SKIP (record skip reason in seen-state, no build) if it needs paid prerequisites: purchased OpenRouter credits, SOL or other crypto funding, real-money entry fees, or a linked wallet with a balance. Report the skip briefly to Adam with the reason — do NOT spend money or ask the user for funding inside this job; the funding decision is Adam's.
+   - SKIP if the deadline is under 4 hours away and the build is a large one (full game / forge / aggregator). Record the reason.
+   - Otherwise BUILD: spawn ONE builder subagent per new competition with this brief:
+     * make.fun account @gentle-owl-26, reward wallet 8rCWeWgLhbrjRJnW3sLDfPBVLR481kFnoGVsghPPCJjG. API key via command substitution only, never printed. Keypair ~/workspace/makefun/makefun-keypair.json (mode 600). gh CLI logged in as jekglory — do NOT log out.
+     * Reread ~/workspace/custom-skills/code_bounty_submission_gate/SKILL.md first and follow it.
+     * CODING ENTRIES MUST BE PURE STDLIB (Python: no Pillow, no numpy, no third-party packages — the grader runs vanilla Python; Node: stdlib + vendored kit files only). TEST the entry locally (run it twice, byte-identical where required) BEFORE submitting.
+     * Build in ~/workspace/makefun/<slug>/, public GitHub repo jekglory/<slug> (MIT, created after the competition opened), commit + push, bundle transcripts with the kit CLI (node cli/makefun.mjs bundle, Muse app sessions + --muse-usage), run the kit `check` on the exact bundle.
+     * IF the check is 0 FAIL: SUBMIT directly via the kit CLI (no confirmation — Adam ordered this). Verify live stage afterwards. Record the submission ID AND the claim code in ~/workspace/makefun/submissions-2026-11-13.md (claim codes live ONLY there, never in chat, never in the seen-state). Report back: bounty name, prize, deadline, submission ID, check tally.
+     * IF the check FAILS: fix what is fixable; if it cannot be fixed, do NOT submit (refused attempts count toward quota) and report the exact failures.
+     * NEVER claim any prize. Claiming needs Adam's explicit permission per prize.
+     * Check quota before submitting (the kit check covers it; max 10/day, 20 total per account).
+4. Update ~/workspace/makefun/seen-competitions.json every run: add new slugs with status/deadline/our_submission/handled/notes, refresh last_checked_utc, update submission counts for open ones.
+5. Delivery: report to Adam in Bahasa Indonesia AFTER each successful submit (bounty name, prize, deadline). Report a skip briefly with its reason. Stay silent on no-change runs.
