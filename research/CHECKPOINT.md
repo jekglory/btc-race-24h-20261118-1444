@@ -37,6 +37,35 @@
 - Trade detail (new): buy bar 64 $63,993 -> target sell bar 506 $64,976
   (+$7.27); second buy bar 1438 flattens at the last close (-$0.45,
   penultimate-bar tail artifact, bounded). Old: one clean trip +$7.81.
-- Next: rewrite main.py for the new strategy, validate with the exact
-  protocol driver x2 (research/run_bot.py), repo + README + LICENSE +
-  owner.json, commit, push, kit check, submit.
+## Protocol-driver validation (2026-11-18 ~22:25 WIB)
+- Real main.py driven through the exact protocol driver (research/run_bot.py,
+  integer fill model copied from the kit's harness source): run1 PnL +$6.82,
+  run2 PnL +$6.82, action logs byte-identical, 3 fills + flatten, fees $0.81,
+  maxDD 0.75%. Matches the exact search sim exactly (+$6.82). DEV GATE PASSES.
+- Fills: buy $63,993.37 -> target sell $64,975.97 (+$7.27 on $500);
+  second buy $63,206.23 flattened at the last close (-$0.45).
+- main.py revised twice after the first write (docstring PnL accuracy +
+  tail-buy comment); driver re-run after the edits, same +$6.82 x2.
+
+## SUBMITTED (2026-11-18 22:30 WIB / 15:30:14Z)
+- Submission ID 01a1ef47-ae34-717c-8caa-cc19dd64e012, commit
+  c1fdfd572d4301a389a2d9f4c45ae2129df856ba (repo jekglory/btc-race-24h-20261118-1444,
+  public, MIT, created 15:16:08Z after the 14:44:00Z open).
+- Bundle /tmp/btc-race-bundle.tar.gz (215,620 bytes, sha256
+  f878a2723c626c73a41fdd88e615babbe6e2521636518be2fb922f3491b97c4d):
+  2 sessions (builder c753167c 82 turns + parent e133e866 14 turns) + 1 usage
+  row (parent's; builder rows are written when this subagent run completes)
+  + prompt file (cron body, origin scheduled) + system prompt uploaded.
+  First bundle attempt refused run-record (harness version "unknown" not
+  accepted; fixed with --harness-version 1.3 --provider meta --model
+  muse-spark-1.3, noting 1.3 is the Muse Spark version from the runtime).
+  Kit check on the exact bundle: 14 passed, 0 failed, 4 skipped,
+  5 at-submission; thinking_reproduces 59.2% (main.py 54 authored lines).
+- Live stage verified (makefun status): "checked, round 1" — ALL server
+  intake checks pass, incl. quota, duplicate_snapshot, security_audit,
+  transcripts_run_record; dev_profitable pending (dev grade under way).
+  The entry RACES once its dev grade ends above $0 (local +$6.82).
+- Claim code recorded ONLY in ~/workspace/makefun/submissions-2026-11-13.md
+  section 18. Quota: 3rd submission this UTC day (7 of 10/day remain);
+  1st for this competition. Final window starts 2026-11-18T20:59:00Z;
+  result due 2026-12-11T20:59:00Z.
